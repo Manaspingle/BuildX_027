@@ -81,37 +81,37 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-brand-teal selection:text-white">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-brand-teal selection:text-white transition-colors duration-200">
       {/* Top Bar / Header */}
       <Navbar />
 
       {/* Hero Section with Large Decorative Spheres in #F48552 and Brand Teal Accents */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50 to-orange-50/20 pt-8 pb-20 lg:pt-16 lg:pb-28 border-b border-slate-200/60">
+      <section className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50 to-orange-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 pt-8 pb-20 lg:pt-16 lg:pb-28 border-b border-slate-200/60 dark:border-slate-800">
         {/* Large Decorative Spheres in Orange #F48552 */}
-        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[#F48552]/15 blur-3xl pointer-events-none animate-pulse-slow" />
-        <div className="absolute top-1/2 -left-20 w-80 h-80 rounded-full bg-[#F48552]/10 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-5 right-1/3 w-72 h-72 rounded-full bg-[#00605F]/10 blur-2xl pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[#F48552]/15 dark:bg-[#F48552]/10 blur-3xl pointer-events-none animate-pulse-slow" />
+        <div className="absolute top-1/2 -left-20 w-80 h-80 rounded-full bg-[#F48552]/10 dark:bg-[#F48552]/5 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-5 right-1/3 w-72 h-72 rounded-full bg-[#00605F]/10 dark:bg-[#00605F]/15 blur-2xl pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           {/* Top Announcement & Language Quick Select Bar */}
           <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-teal-50 border border-brand-teal/20 text-brand-teal rounded-full text-xs sm:text-sm font-bold shadow-sm">
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-teal-50 dark:bg-teal-950/60 border border-brand-teal/20 text-brand-teal dark:text-teal-300 rounded-full text-xs sm:text-sm font-bold shadow-sm">
               <span className="w-2.5 h-2.5 bg-brand-teal rounded-full animate-ping" />
               <span>{t('app.hero_badge')}</span>
             </div>
 
             {/* Language Selector Dropdown on Landing Page as explicitly requested */}
-            <div className="flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-2xl border-2 border-brand-orange/30 shadow-sm">
+            <div className="flex items-center gap-2 bg-white dark:bg-slate-800 px-3.5 py-1.5 rounded-2xl border-2 border-brand-orange/30 shadow-sm">
               <Globe className="w-4 h-4 text-brand-orange" />
-              <span className="text-xs font-bold text-slate-600">{t('common.language')}:</span>
+              <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{t('common.language')}:</span>
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as Language)}
-                className="bg-transparent text-xs font-black text-brand-teal focus:outline-none cursor-pointer pr-1"
+                className="bg-transparent text-xs font-black text-brand-teal dark:text-teal-400 focus:outline-none cursor-pointer pr-1"
               >
-                <option value="en">English</option>
-                <option value="hi">हिन्दी (Hindi)</option>
-                <option value="mr">मराठी (Marathi)</option>
+                <option value="en" className="dark:bg-slate-800 text-slate-900 dark:text-white">English</option>
+                <option value="hi" className="dark:bg-slate-800 text-slate-900 dark:text-white">हिन्दी (Hindi)</option>
+                <option value="mr" className="dark:bg-slate-800 text-slate-900 dark:text-white">मराठी (Marathi)</option>
               </select>
             </div>
           </div>
@@ -122,60 +122,23 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="lg:col-span-7 space-y-6"
+              className="lg:col-span-6 space-y-6"
             >
-              {/* Main Headline */}
-              <h1 className="text-4xl sm:text-6xl lg:text-6xl font-black text-brand-teal tracking-tight leading-[1.1]">
+              {/* Main Headline with Hindi/Marathi friendly line height */}
+              <h1 className={`text-4xl sm:text-5xl lg:text-6xl font-black text-brand-teal dark:text-teal-400 ${
+                language !== 'en' ? 'leading-normal sm:leading-snug tracking-normal' : 'tracking-tight leading-[1.15]'
+              }`}>
                 {t('app.hero_title_1')}{' '}
                 <span className="bg-gradient-to-r from-brand-orange via-orange-500 to-amber-600 bg-clip-text text-transparent">
                   {t('app.hero_title_2')}
                 </span>
               </h1>
 
-              <p className="text-lg sm:text-xl text-slate-600 leading-relaxed max-w-2xl font-medium">
+              <p className={`text-base sm:text-lg lg:text-xl text-slate-600 dark:text-slate-300 max-w-2xl font-medium ${
+                language !== 'en' ? 'leading-relaxed' : 'leading-relaxed'
+              }`}>
                 {t('app.hero_desc')}
               </p>
-
-              {/* HIGH-PRIORITY EMERGENCY ACCIDENT BUTTON (Red with Beep Animation) */}
-              <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white shadow-2xl shadow-red-600/30 border-2 border-red-400/50 space-y-3 relative overflow-hidden">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center relative">
-                      <Siren className="w-7 h-7 text-white animate-bounce" />
-                      <span className="absolute -top-1 -right-1 flex h-4 w-4">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-300 opacity-80" />
-                        <span className="relative inline-flex rounded-full h-4 w-4 bg-yellow-400" />
-                      </span>
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded-full bg-white/25 text-[10px] font-black uppercase tracking-wider">
-                          Accident SOS Trigger
-                        </span>
-                        <span className="text-red-100 text-xs font-semibold">• Bystanders & Helpers</span>
-                      </div>
-                      <h3 className="text-lg sm:text-xl font-black text-white">
-                        {t('landing.emergency_callout_title')}
-                      </h3>
-                    </div>
-                  </div>
-
-                  {/* Red Animated EMERGENCY Beeping Button */}
-                  <button
-                    type="button"
-                    onClick={() => setIsEmergencyOpen(true)}
-                    className="flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-2xl bg-white hover:bg-yellow-300 text-red-700 font-black text-sm uppercase tracking-wider shadow-lg animate-beep-pulse transition-all transform active:scale-95"
-                  >
-                    <Siren className="w-5 h-5 text-red-600 animate-pulse" />
-                    <span>{t('emergency.btn')}</span>
-                    <ArrowRight className="w-4 h-4 text-red-600" />
-                  </button>
-                </div>
-
-                <p className="text-xs text-red-100 font-medium">
-                  {t('landing.emergency_callout_desc')}
-                </p>
-              </div>
 
               {/* Two Standard CTAs: Donor & Hospital */}
               <div className="flex flex-col sm:flex-row gap-4 pt-2">
@@ -190,7 +153,7 @@ export default function LandingPage() {
 
                 <Link
                   to="/auth?mode=signup&role=hospital"
-                  className="flex items-center justify-center gap-2.5 px-8 py-4 bg-white hover:bg-orange-50/50 text-slate-800 font-bold rounded-2xl border-2 border-brand-orange/30 shadow-sm transition-all transform hover:-translate-y-0.5 text-base"
+                  className="flex items-center justify-center gap-2.5 px-8 py-4 bg-white dark:bg-slate-800 hover:bg-orange-50/50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-bold rounded-2xl border-2 border-brand-orange/30 shadow-sm transition-all transform hover:-translate-y-0.5 text-base"
                 >
                   <Building2 className="w-5 h-5 text-brand-orange" />
                   {t('landing.cta_btn_hospital')}
@@ -198,114 +161,157 @@ export default function LandingPage() {
               </div>
 
               {/* Trust Badges */}
-              <div className="grid grid-cols-3 gap-4 pt-6 border-t border-slate-200/80">
+              <div className="grid grid-cols-3 gap-3 sm:gap-4 pt-6 border-t border-slate-200/80 dark:border-slate-800">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-brand-teal flex-shrink-0" />
-                  <span className="text-xs sm:text-sm font-bold text-slate-700">SHA-256 Ledger</span>
+                  <ShieldCheck className="w-5 h-5 text-brand-teal dark:text-teal-400 flex-shrink-0" />
+                  <span className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">SHA-256 Ledger</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Zap className="w-5 h-5 text-brand-orange flex-shrink-0" />
-                  <span className="text-xs sm:text-sm font-bold text-slate-700">&lt; 3 Min Dispatch</span>
+                  <span className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">&lt; 3 Min Dispatch</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Award className="w-5 h-5 text-amber-600 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm font-bold text-slate-700">MH Certified</span>
+                  <Award className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                  <span className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">MH Certified</span>
                 </div>
               </div>
             </motion.div>
 
-            {/* Right Column: Hero Visual with Brand Logo & Photography */}
+            {/* Right Column: Inspiring Photographic Showcase of Doctors & Donors Helping */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="lg:col-span-5"
+              transition={{ duration: 0.7, delay: 0.15 }}
+              className="lg:col-span-6"
             >
               <div className="relative">
                 {/* Large decorative circular backdrop in #F48552 */}
-                <div className="absolute -top-6 -right-6 w-48 h-48 rounded-full bg-[#F48552]/20 blur-xl pointer-events-none" />
+                <div className="absolute -top-6 -right-6 w-60 h-60 rounded-full bg-[#F48552]/20 dark:bg-[#F48552]/10 blur-2xl pointer-events-none" />
 
-                {/* Hero Showcase Card with Uploaded Logo */}
-                <div className="bg-white rounded-3xl p-6 shadow-2xl border-2 border-brand-orange/20 relative overflow-hidden">
-                  <div className="flex items-center gap-4 mb-5 pb-4 border-b border-slate-100">
-                    <img
-                      src="/aarogyam-logo.jpg"
-                      alt="Aarogyam Emblem"
-                      className="w-16 h-16 object-cover rounded-2xl shadow-md border-2 border-brand-orange"
-                    />
-                    <div>
-                      <span className="text-xs font-black uppercase text-brand-orange tracking-widest block">
-                        Official Network
-                      </span>
-                      <h2 className="text-2xl font-black text-brand-teal">
-                        Aarogyam Maharashtra
-                      </h2>
-                      <p className="text-xs text-slate-500 font-semibold">
-                        Mumbai • Pune • Nagpur
-                      </p>
+                {/* Hero Showcase Card with Doctor & Donation Photography */}
+                <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-7 shadow-2xl border-2 border-brand-orange/20 dark:border-slate-800 relative overflow-hidden">
+                  
+                  {/* Top Header inside card */}
+                  <div className="flex items-center justify-between gap-4 mb-5 pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src="/aarogyam-logo.jpg"
+                        alt="Aarogyam Emblem"
+                        className="w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-2xl shadow-md border-2 border-brand-orange"
+                      />
+                      <div>
+                        <span className="text-[11px] font-black uppercase text-brand-orange tracking-widest block">
+                          Lifesaving Mission
+                        </span>
+                        <h2 className="text-xl sm:text-2xl font-black text-brand-teal dark:text-teal-400">
+                          Aarogyam Maharashtra
+                        </h2>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                          Mumbai • Pune • Nagpur
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 rounded-full text-xs font-bold border border-emerald-200 dark:border-emerald-800/50">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                      <span>24/7 Active Care</span>
                     </div>
                   </div>
 
-                  {/* 3 Quick Action Tiles */}
-                  <div className="space-y-3">
-                    <button
-                      type="button"
-                      onClick={() => setIsEmergencyOpen(true)}
-                      className="w-full p-3.5 rounded-2xl bg-red-50 border border-red-200 hover:border-red-400 text-left flex items-center justify-between transition-all group"
+                  {/* Inspiring Imagery Grid */}
+                  <div className="grid grid-cols-2 gap-3.5 mb-5">
+                    {/* Image 1: Dedicated Critical Care Doctors */}
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      transition={{ duration: 0.2 }}
+                      className="relative rounded-2xl overflow-hidden shadow-md group h-40 sm:h-44"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-red-600 text-white flex items-center justify-center animate-pulse">
-                          <Phone className="w-4 h-4" />
+                      <img
+                        src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=700&q=80"
+                        alt="Dedicated Medical Doctors and Trauma Care Team"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent p-3 flex flex-col justify-end">
+                        <div className="flex items-center gap-1.5 text-white text-xs font-black">
+                          <Stethoscope className="w-3.5 h-3.5 text-brand-orange" />
+                          <span>Specialist Doctors</span>
                         </div>
-                        <div>
-                          <p className="text-xs font-black text-red-700">1. Direct Ambulance Call</p>
-                          <p className="text-[11px] text-slate-500">8 registered fleets with live ETA</p>
-                        </div>
+                        <p className="text-[10px] text-slate-200 line-clamp-1">Expert Emergency ICU & Trauma Teams</p>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-red-600 group-hover:translate-x-1 transition-transform" />
-                    </button>
+                    </motion.div>
 
-                    <button
-                      type="button"
-                      onClick={() => setIsEmergencyOpen(true)}
-                      className="w-full p-3.5 rounded-2xl bg-teal-50 border border-teal-200 hover:border-teal-400 text-left flex items-center justify-between transition-all group"
+                    {/* Image 2: Blood Donation & Volunteer Care */}
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      transition={{ duration: 0.2 }}
+                      className="relative rounded-2xl overflow-hidden shadow-md group h-40 sm:h-44"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-brand-teal text-white flex items-center justify-center">
-                          <Building2 className="w-4 h-4" />
+                      <img
+                        src="https://images.unsplash.com/photo-1615461066841-6116e61058f4?auto=format&fit=crop&w=700&q=80"
+                        alt="Blood Donation and Lifesaving Volunteer"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent p-3 flex flex-col justify-end">
+                        <div className="flex items-center gap-1.5 text-white text-xs font-black">
+                          <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500" />
+                          <span>Blood & Organ Gifts</span>
                         </div>
-                        <div>
-                          <p className="text-xs font-black text-brand-teal">2. Private Emergency Hospital</p>
-                          <p className="text-[11px] text-slate-500">Check ICU beds & trigger casualty alert</p>
-                        </div>
+                        <p className="text-[10px] text-slate-200 line-clamp-1">Volunteer Donors Saving Lives Daily</p>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-brand-teal group-hover:translate-x-1 transition-transform" />
-                    </button>
+                    </motion.div>
 
-                    <button
-                      type="button"
-                      onClick={() => setIsEmergencyOpen(true)}
-                      className="w-full p-3.5 rounded-2xl bg-orange-50 border border-orange-200 hover:border-orange-400 text-left flex items-center justify-between transition-all group"
+                    {/* Image 3: Compassionate Care & Patient Support */}
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      transition={{ duration: 0.2 }}
+                      className="relative rounded-2xl overflow-hidden shadow-md group h-36 sm:h-40"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-brand-orange text-white flex items-center justify-center">
-                          <ShieldCheck className="w-4 h-4" />
+                      <img
+                        src="https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=700&q=80"
+                        alt="Compassionate Medical Support and Bystander Care"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent p-3 flex flex-col justify-end">
+                        <div className="flex items-center gap-1.5 text-white text-xs font-black">
+                          <HandHeart className="w-3.5 h-3.5 text-brand-teal" />
+                          <span>Compassionate Helpers</span>
                         </div>
-                        <div>
-                          <p className="text-xs font-black text-brand-orange">3. Government / Civic Hospital</p>
-                          <p className="text-[11px] text-slate-500">Free trauma care & on-call doctors</p>
-                        </div>
+                        <p className="text-[10px] text-slate-200 line-clamp-1">Good Samaritan Protected Aid</p>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-brand-orange group-hover:translate-x-1 transition-transform" />
-                    </button>
+                    </motion.div>
+
+                    {/* Image 4: Rapid Ambulance & Trauma Response */}
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      transition={{ duration: 0.2 }}
+                      className="relative rounded-2xl overflow-hidden shadow-md group h-36 sm:h-40"
+                    >
+                      <img
+                        src="https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=700&q=80"
+                        alt="Emergency Hospital Response Equipment"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent p-3 flex flex-col justify-end">
+                        <div className="flex items-center gap-1.5 text-white text-xs font-black">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Green Corridors</span>
+                        </div>
+                        <p className="text-[10px] text-slate-200 line-clamp-1">Instant Multi-Hospital Bed Allocation</p>
+                      </div>
+                    </motion.div>
                   </div>
 
-                  <div className="mt-5 p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-600">
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                      Live Central Casualty Link
+                  {/* Motivational Quote & Assurance Banner */}
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-r from-teal-50/80 via-orange-50/60 to-teal-50/80 dark:from-slate-800/80 dark:to-slate-800/80 border border-brand-teal/15 dark:border-slate-700 flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    <span className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-brand-orange animate-pulse" />
+                      Every donor pledge gives someone another tomorrow.
                     </span>
-                    <span className="text-brand-teal font-black font-mono">100% SECURE</span>
+                    <span className="text-brand-teal dark:text-teal-400 font-black font-mono tracking-wider hidden sm:inline">MAHARASHTRA</span>
                   </div>
                 </div>
               </div>
@@ -315,13 +321,13 @@ export default function LandingPage() {
       </section>
 
       {/* Animated Stats Section */}
-      <section className="py-16 sm:py-20 bg-white border-b border-slate-200/60">
+      <section className="py-16 sm:py-20 bg-white dark:bg-slate-900 border-b border-slate-200/60 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-14">
-            <h2 className="text-3xl sm:text-4xl font-black text-brand-teal tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-black text-brand-teal dark:text-teal-400 tracking-tight">
               Real Impact, Measured in Lives
             </h2>
-            <p className="text-slate-600 mt-2 text-base sm:text-lg font-medium">
+            <p className="text-slate-600 dark:text-slate-400 mt-2 text-base sm:text-lg font-medium">
               Every count represents a real lifesaving connection made across Mumbai, Pune, and Nagpur.
             </p>
           </div>
@@ -336,13 +342,13 @@ export default function LandingPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.1 }}
-                  className="relative group p-7 rounded-3xl bg-slate-50 border border-slate-100 hover:border-brand-teal/30 hover:shadow-xl hover:bg-white transition-all duration-300"
+                  className="relative group p-7 rounded-3xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 hover:border-brand-teal/30 hover:shadow-xl hover:bg-white dark:hover:bg-slate-800 transition-all duration-300"
                 >
                   <div className={`w-14 h-14 rounded-2xl ${stat.lightColor} flex items-center justify-center mb-6`}>
                     <Icon className="w-7 h-7" />
                   </div>
                   <AnimatedCounter value={stat.value} suffix={stat.suffix} />
-                  <p className="text-slate-600 font-black mt-2 text-base">{stat.label}</p>
+                  <p className="text-slate-600 dark:text-slate-300 font-black mt-2 text-base">{stat.label}</p>
                 </motion.div>
               );
             })}
@@ -351,16 +357,16 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works 3-Step Section */}
-      <section className="py-20 lg:py-28 bg-slate-50 border-b border-slate-200/60">
+      <section className="py-20 lg:py-28 bg-slate-50 dark:bg-slate-950 border-b border-slate-200/60 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-xs font-bold uppercase tracking-widest text-brand-teal bg-teal-50 px-3.5 py-1.5 rounded-full border border-brand-teal/20">
+            <span className="text-xs font-bold uppercase tracking-widest text-brand-teal bg-teal-50 dark:bg-teal-950/50 px-3.5 py-1.5 rounded-full border border-brand-teal/20">
               {t('landing.how_it_works')}
             </span>
-            <h2 className="text-3xl sm:text-5xl font-black text-brand-teal tracking-tight mt-4">
+            <h2 className="text-3xl sm:text-5xl font-black text-brand-teal dark:text-teal-400 tracking-tight mt-4">
               Rapid Triage & Instant Allocation
             </h2>
-            <p className="text-slate-600 mt-3 text-base sm:text-lg font-medium">
+            <p className="text-slate-600 dark:text-slate-400 mt-3 text-base sm:text-lg font-medium">
               From roadside accidents to critical organ donations, every step is automated and transparent.
             </p>
           </div>
@@ -375,13 +381,13 @@ export default function LandingPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.15 }}
-                  className="bg-white rounded-3xl p-8 border border-slate-200 shadow-lg relative group hover:border-brand-orange/40 hover:shadow-2xl transition-all"
+                  className="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-800 shadow-lg relative group hover:border-brand-orange/40 hover:shadow-2xl transition-all"
                 >
                   <div className="flex items-center justify-between mb-6">
                     <span className="text-4xl font-black text-brand-orange opacity-40">
                       {step.num}
                     </span>
-                    <span className="text-xs font-bold px-3 py-1 bg-slate-100 text-slate-700 rounded-full">
+                    <span className="text-xs font-bold px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-full">
                       {step.badge}
                     </span>
                   </div>
@@ -390,8 +396,8 @@ export default function LandingPage() {
                     <Icon className="w-7 h-7" />
                   </div>
 
-                  <h3 className="text-xl font-black text-slate-900 mb-3">{step.title}</h3>
-                  <p className="text-slate-600 text-sm leading-relaxed">{step.desc}</p>
+                  <h3 className="text-xl font-black text-slate-900 dark:text-white mb-3">{step.title}</h3>
+                  <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{step.desc}</p>
                 </motion.div>
               );
             })}
@@ -400,13 +406,13 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 lg:py-24 bg-white border-b border-slate-200/60">
+      <section className="py-20 lg:py-24 bg-white dark:bg-slate-900 border-b border-slate-200/60 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-xs font-bold uppercase tracking-widest text-brand-orange bg-orange-50 px-3 py-1 rounded-full border border-brand-orange/20">
+            <span className="text-xs font-bold uppercase tracking-widest text-brand-orange bg-orange-50 dark:bg-orange-950/50 px-3 py-1 rounded-full border border-brand-orange/20">
               Verified Stories
             </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-brand-teal tracking-tight mt-3">
+            <h2 className="text-3xl sm:text-4xl font-black text-brand-teal dark:text-teal-400 tracking-tight mt-3">
               {t('landing.testimonials_title')}
             </h2>
           </div>
@@ -415,16 +421,16 @@ export default function LandingPage() {
             {TESTIMONIALS.map((tItem, idx) => (
               <div
                 key={idx}
-                className="bg-slate-50 rounded-3xl p-7 border border-slate-200/80 shadow-sm flex flex-col justify-between"
+                className="bg-slate-50 dark:bg-slate-800/70 rounded-3xl p-7 border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-col justify-between"
               >
-                <p className="text-sm sm:text-base text-slate-700 italic leading-relaxed mb-6">
+                <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 italic leading-relaxed mb-6">
                   "{tItem.message}"
                 </p>
-                <div className="flex items-center gap-3 pt-4 border-t border-slate-200">
+                <div className="flex items-center gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
                   <span className="text-3xl">{tItem.image}</span>
                   <div>
-                    <h4 className="font-bold text-slate-900 text-sm">{tItem.name}</h4>
-                    <p className="text-xs text-brand-teal font-semibold">
+                    <h4 className="font-bold text-slate-900 dark:text-white text-sm">{tItem.name}</h4>
+                    <p className="text-xs text-brand-teal dark:text-teal-400 font-semibold">
                       {tItem.role} • {tItem.city}
                     </p>
                   </div>
@@ -434,28 +440,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* Floating Bottom SOS Bar for Instant Access */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[94%] max-w-lg">
-        <div className="bg-slate-900/95 backdrop-blur-md text-white p-3 sm:p-4 rounded-3xl shadow-2xl border-2 border-red-500/80 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-red-600 text-white flex items-center justify-center animate-beep-pulse">
-              <Siren className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-xs font-black uppercase text-red-400">Roadside Accident?</p>
-              <p className="text-[11px] text-slate-300">Instant Ambulance & Hospital Bed Alert</p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setIsEmergencyOpen(true)}
-            className="px-5 py-2.5 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-wider shadow-lg animate-pulse"
-          >
-            {t('emergency.btn')}
-          </button>
-        </div>
-      </div>
 
       {/* Footer */}
       <footer className="bg-slate-900 text-slate-300 py-16 pb-24 border-t border-slate-800">

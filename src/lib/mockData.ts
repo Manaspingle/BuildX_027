@@ -465,6 +465,31 @@ export const mockHospitals: Hospital[] = [
     },
     created_at: new Date('2021-11-20').toISOString(),
   },
+  {
+    id: 'hospital_6',
+    user_id: null,
+    email: 'kingsway.nagpur@aarogyam.org',
+    hospital_name: 'Kingsway Hospitals Nagpur',
+    registration_id: 'REG-006-NAG',
+    city: 'Nagpur',
+    address: '44, Kingsway Road, Near Kasturchand Park, Nagpur',
+    contact_person: 'Dr. Ajay Agrawal',
+    phone: '9067375860',
+    verified: true,
+    lat: 21.1550,
+    lng: 79.0880,
+    inventory: {
+      'O+': 15,
+      'O-': 6,
+      'A+': 10,
+      'B+': 12,
+      'AB+': 4,
+      'Kidney': 3,
+      'Liver': 2,
+      'Heart': 1,
+    },
+    created_at: new Date('2022-01-10').toISOString(),
+  },
 ];
 
 // Registered Ambulance Services Fleet (Dummy Dataset of 8 drivers with capacities & pricing)
@@ -579,8 +604,8 @@ export const AMBULANCE_SERVICES: AmbulanceDriver[] = [
   },
   {
     id: 'amb_7',
-    driver_name: 'Manoj Wankhede',
-    phone: '+91 98231 88901',
+    driver_name: 'Manoj Wankhede (Nagpur Emergency)',
+    phone: '9067375860',
     city: 'Nagpur',
     vehicle_no: 'MH-31-CB-1122',
     capacity_type: 'Large Capacity (ICU / Ventilator)',
@@ -597,8 +622,8 @@ export const AMBULANCE_SERVICES: AmbulanceDriver[] = [
   },
   {
     id: 'amb_8',
-    driver_name: 'Dinesh Meshram',
-    phone: '+91 98232 99012',
+    driver_name: 'Dinesh Meshram (Nagpur Quick Aid)',
+    phone: '8530779934',
     city: 'Nagpur',
     vehicle_no: 'MH-40-AZ-5561',
     capacity_type: 'Small Capacity (Basic Life Support)',

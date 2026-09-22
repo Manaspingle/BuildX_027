@@ -8,7 +8,7 @@ import {
 } from 'firebase/auth';
 import { collection, query, where, getDocs, setDoc, doc, Timestamp } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
-import { getDonors, getHospitals } from '@/lib/firebaseDb';
+import { getDonors, getHospitals, saveCustomHospital } from '@/lib/firebaseDb';
 import type { Profile, Donor, Hospital } from '@/types';
 
 interface AuthContextType {
@@ -194,6 +194,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setHospital(newHospital);
         setDonor(null);
 
+        saveCustomHospital(newHospital);
+
         // Save to Firestore
         try {
           await setDoc(doc(db, 'profiles', uid), newProfile);
@@ -216,15 +218,72 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signIn(email: string, password: string) {
+    const cleanEmail = email.trim().toLowerCase();
+
+    // Try Firebase Authentication first
     try {
-      const res = await signInWithEmailAndPassword(auth, email, password);
+      const res = await signInWithEmailAndPassword(auth, cleanEmail, password);
       setSession(res.user);
       await loadUserData(res.user);
       localStorage.removeItem(DEMO_SESSION_KEY);
       localStorage.removeItem(LEGACY_DEMO_SESSION_KEY);
       return { error: null };
-    } catch (error: any) {
-      return { error: error.message || 'Invalid email or password' };
+    } catch (authErr: any) {
+      console.warn('Firebase Auth sign in failed, checking registered mock data:', authErr.message);
+
+      // Check registered / mock hospitals
+      const allHospitals = await getHospitals();
+      const matchedHospital = allHospitals.find(
+        (h) => h.email.toLowerCase() === cleanEmail || h.id.toLowerCase() === cleanEmail
+      );
+      if (matchedHospital) {
+        const demoUser = { uid: matchedHospital.id, email: matchedHospital.email };
+        const demoProfile: Profile = {
+          id: matchedHospital.id,
+          user_id: matchedHospital.id,
+          role: 'hospital',
+          email: matchedHospital.email,
+          created_at: matchedHospital.created_at,
+        };
+        setSession(demoUser);
+        setProfile(demoProfile);
+        setHospital(matchedHospital);
+        setDonor(null);
+        localStorage.setItem(DEMO_SESSION_KEY, JSON.stringify({
+          user: demoUser,
+          profile: demoProfile,
+          hospital: matchedHospital,
+        }));
+        return { error: null };
+      }
+
+      // Check registered / mock donors
+      const allDonors = await getDonors();
+      const matchedDonor = allDonors.find(
+        (d) => d.email.toLowerCase() === cleanEmail || d.id.toLowerCase() === cleanEmail
+      );
+      if (matchedDonor) {
+        const demoUser = { uid: matchedDonor.id, email: matchedDonor.email };
+        const demoProfile: Profile = {
+          id: matchedDonor.id,
+          user_id: matchedDonor.id,
+          role: 'individual',
+          email: matchedDonor.email,
+          created_at: matchedDonor.created_at,
+        };
+        setSession(demoUser);
+        setProfile(demoProfile);
+        setDonor(matchedDonor);
+        setHospital(null);
+        localStorage.setItem(DEMO_SESSION_KEY, JSON.stringify({
+          user: demoUser,
+          profile: demoProfile,
+          donor: matchedDonor,
+        }));
+        return { error: null };
+      }
+
+      return { error: authErr.message || 'Invalid email or password' };
     }
   }
 

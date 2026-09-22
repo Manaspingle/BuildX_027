@@ -465,9 +465,31 @@ export default function AuthPage() {
 
               {/* Quick Demo Credentials Helpers */}
               {mode === 'login' && (
-                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 text-xs text-slate-600">
-                  <p className="font-bold text-slate-700 mb-1.5">Quick Demo Fill:</p>
-                  <div className="flex gap-2">
+                <div className="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 space-y-2">
+                  <p className="font-bold text-slate-700 dark:text-slate-200">Quick Hospital & Donor Access:</p>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmail('gmc.nagpur@aarogyam.org');
+                        setPassword('password123');
+                        setRole('hospital');
+                      }}
+                      className="px-2.5 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:border-brand-teal text-slate-800 dark:text-slate-100 font-semibold transition-colors"
+                    >
+                      🏥 GMC Nagpur
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmail('kingsway.nagpur@aarogyam.org');
+                        setPassword('password123');
+                        setRole('hospital');
+                      }}
+                      className="px-2.5 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:border-brand-teal text-slate-800 dark:text-slate-100 font-semibold transition-colors"
+                    >
+                      🏥 Kingsway Nagpur
+                    </button>
                     <button
                       type="button"
                       onClick={() => {
@@ -475,9 +497,20 @@ export default function AuthPage() {
                         setPassword('password123');
                         setRole('hospital');
                       }}
-                      className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg hover:border-brand-teal text-slate-700 font-semibold transition-colors"
+                      className="px-2.5 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:border-brand-teal text-slate-800 dark:text-slate-100 font-semibold transition-colors"
                     >
-                      KEM Mumbai (Hospital)
+                      🏥 KEM Mumbai
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmail('sassoon.pune@aarogyam.org');
+                        setPassword('password123');
+                        setRole('hospital');
+                      }}
+                      className="px-2.5 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:border-brand-teal text-slate-800 dark:text-slate-100 font-semibold transition-colors"
+                    >
+                      🏥 Sassoon Pune
                     </button>
                     <button
                       type="button"
@@ -486,9 +519,9 @@ export default function AuthPage() {
                         setPassword('password123');
                         setRole('individual');
                       }}
-                      className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg hover:border-brand-teal text-slate-700 font-semibold transition-colors"
+                      className="px-2.5 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:border-brand-teal text-slate-800 dark:text-slate-100 font-semibold transition-colors"
                     >
-                      Rajesh (Donor)
+                      🩸 Rajesh (Donor)
                     </button>
                   </div>
                 </div>

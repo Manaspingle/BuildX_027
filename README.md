@@ -1,4 +1,4 @@
-# 🩸 Aarogyam — Blood & Organ Donor Network
+# 🩸 Aarogyam
 
 > **Connecting Life, One Match at a Time.**
 
@@ -20,4 +20,3 @@ Aarogyam is a real-time, city-based emergency allocation platform connecting ind
 
 ---
 
-*Additional documentation, setup instructions, and deployment guides will be added later.*

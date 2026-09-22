@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Siren, Phone, MapPin, Building2, ShieldAlert, Clock,
   CheckCircle2, AlertTriangle, X, Radio, ArrowRight, BedDouble,
-  Stethoscope, Navigation, ExternalLink, Activity, Info
+  Stethoscope, Navigation, ExternalLink, Activity, Info, Users, Plus, Minus
 } from 'lucide-react';
 import { AMBULANCE_SERVICES, EMERGENCY_HOSPITALS } from '@/lib/mockData';
 import { useLanguage } from '@/context/LanguageContext';
-import type { AmbulanceDriver, EmergencyHospital } from '@/types';
+import { createEmergencyIncident } from '@/lib/firebaseDb';
+import type { AmbulanceDriver, EmergencyHospital, EmergencyIncident } from '@/types';
 
 interface EmergencyAccidentModalProps {
   isOpen: boolean;
@@ -25,21 +26,24 @@ export default function EmergencyAccidentModal({
   const { t } = useLanguage();
   const [selectedCity, setSelectedCity] = useState<'Mumbai' | 'Pune' | 'Nagpur'>(defaultCity);
   const [activeTab, setActiveTab] = useState<EmergencyTab>('ambulance');
+  const [patientCount, setPatientCount] = useState<number>(1);
   const [callingAmbulance, setCallingAmbulance] = useState<AmbulanceDriver | null>(null);
   const [callInitiated, setCallInitiated] = useState(false);
   
   // Real-time triggered hospital state
   const [selectedHospital, setSelectedHospital] = useState<EmergencyHospital | null>(null);
+  const [secondaryHospital, setSecondaryHospital] = useState<EmergencyHospital | null>(null);
+  const [splitAllocation, setSplitAllocation] = useState<{ primaryPatients: number; secondaryPatients: number } | null>(null);
   const [triggerDispatched, setTriggerDispatched] = useState(false);
   const [emergencyToken, setEmergencyToken] = useState<string>('');
   const [countdownMinutes, setCountdownMinutes] = useState<number>(0);
 
-  // Filter ambulances by city
+  // Strictly filter ambulances by selected city ONLY
   const cityAmbulances = AMBULANCE_SERVICES.filter(
     (a) => a.city.toLowerCase() === selectedCity.toLowerCase()
   );
 
-  // Filter hospitals by city and type
+  // Strictly filter hospitals by selected city and type ONLY
   const privateHospitals = EMERGENCY_HOSPITALS.filter(
     (h) => h.city.toLowerCase() === selectedCity.toLowerCase() && h.type === 'Private'
   );
@@ -51,8 +55,8 @@ export default function EmergencyAccidentModal({
   const handleAmbulanceCall = (amb: AmbulanceDriver) => {
     setCallingAmbulance(amb);
     setCallInitiated(true);
-    // Try opening tel link
-    window.open(`tel:${amb.phone.replace(/[^0-9+]/g, '')}`, '_self');
+    // Direct tel: dialing link
+    window.location.href = `tel:${amb.phone.replace(/[^0-9+]/g, '')}`;
   };
 
   const handleHospitalTrigger = (hospital: EmergencyHospital) => {
@@ -61,12 +65,55 @@ export default function EmergencyAccidentModal({
     const token = `EMG-${selectedCity.substring(0, 3).toUpperCase()}-${randomNum}`;
     setEmergencyToken(token);
     setCountdownMinutes(hospital.reach_time_minutes);
+
+    // Multi-Patient simultaneous bed allocation logic
+    const primaryBeds = Math.max(1, hospital.beds.trauma_available);
+    let primaryPatients = patientCount;
+    let secondaryPatients = 0;
+    let secHosp: EmergencyHospital | null = null;
+
+    if (patientCount > primaryBeds) {
+      primaryPatients = primaryBeds;
+      secondaryPatients = patientCount - primaryBeds;
+      // Automatically route remaining patients to closest other hospital in the SAME city
+      const otherHospitalsInCity = EMERGENCY_HOSPITALS.filter(
+        (h) => h.id !== hospital.id && h.city.toLowerCase() === selectedCity.toLowerCase()
+      );
+      secHosp = otherHospitalsInCity[0] || null;
+      setSecondaryHospital(secHosp);
+    } else {
+      setSecondaryHospital(null);
+    }
+
+    setSplitAllocation({ primaryPatients, secondaryPatients });
+
+    // Persist real-time casualty incident to database & notify hospital dashboard
+    const incident: EmergencyIncident = {
+      id: `incident_${Date.now()}`,
+      token,
+      city: selectedCity,
+      primary_hospital_id: hospital.id,
+      primary_hospital_name: hospital.name,
+      secondary_hospital_id: secHosp?.id,
+      secondary_hospital_name: secHosp?.name,
+      patients_total: patientCount,
+      patients_primary: primaryPatients,
+      patients_secondary: secondaryPatients,
+      reach_time_minutes: hospital.reach_time_minutes,
+      timestamp: new Date().toISOString(),
+      status: 'Prepped & Awaiting Patient',
+      caller_note: `Emergency triage for ${patientCount} patient(s). Primary bay reserved ${primaryPatients} beds.${secondaryPatients > 0 ? ` ${secondaryPatients} re-routed to ${secHosp?.name}.` : ''}`,
+    };
+    createEmergencyIncident(incident);
+
     setTriggerDispatched(true);
   };
 
   const handleResetWorkflow = () => {
     setTriggerDispatched(false);
     setSelectedHospital(null);
+    setSecondaryHospital(null);
+    setSplitAllocation(null);
     setCallingAmbulance(null);
     setCallInitiated(false);
   };
@@ -75,12 +122,12 @@ export default function EmergencyAccidentModal({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5">
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/85 backdrop-blur-md flex justify-center items-start p-3 sm:p-6 py-6 sm:py-10 min-h-screen">
         <motion.div
           initial={{ opacity: 0, scale: 0.96, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 15 }}
-          className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border-2 border-red-500/40 overflow-hidden"
+          className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border-2 border-red-500/40 overflow-hidden my-auto"
         >
           {/* Top Emergency Red Header Banner with pulsating beacon */}
           <div className="bg-gradient-to-r from-red-600 via-red-700 to-rose-700 text-white px-6 py-5 flex items-center justify-between relative overflow-hidden">
@@ -241,6 +288,60 @@ export default function EmergencyAccidentModal({
                   </div>
                 </div>
 
+                {/* Multi-Patient Split Allocation Banner if Trauma Beds Were Re-routed */}
+                {splitAllocation && splitAllocation.secondaryPatients > 0 && secondaryHospital && (
+                  <div className="p-4 rounded-2xl bg-amber-50 border-2 border-amber-400 text-amber-950 space-y-3 shadow-md">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5 text-amber-600 animate-bounce" />
+                      <p className="text-xs sm:text-sm font-black text-amber-900">
+                        {t('emergency.reroute_notice')}
+                      </p>
+                    </div>
+
+                    <div className="grid sm:grid-cols-2 gap-3 text-xs">
+                      {/* Primary Hospital */}
+                      <div className="p-3.5 bg-white rounded-xl border border-amber-300 shadow-sm space-y-1">
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase">
+                          {t('emergency.primary_hosp')}
+                        </span>
+                        <p className="font-black text-slate-900 text-sm">{selectedHospital.name}</p>
+                        <p className="text-emerald-700 font-extrabold text-sm">
+                          ✓ {splitAllocation.primaryPatients} {t('emergency.patients_count')} Assigned (Full Bay Reserved)
+                        </p>
+                        <p className="text-[11px] text-slate-500">ETA: ~{countdownMinutes} mins · {selectedHospital.distance_km} km</p>
+                      </div>
+
+                      {/* Secondary Auto-routed Hospital */}
+                      <div className="p-3.5 bg-white rounded-xl border border-red-300 shadow-sm space-y-1">
+                        <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-[10px] font-black uppercase">
+                          {t('emergency.secondary_hosp')}
+                        </span>
+                        <p className="font-black text-slate-900 text-sm">{secondaryHospital.name}</p>
+                        <p className="text-red-700 font-extrabold text-sm">
+                          ⚡ {splitAllocation.secondaryPatients} {t('emergency.patients_count')} Auto-Rerouted (Trauma Bay Prepped)
+                        </p>
+                        <p className="text-[11px] text-slate-500">ETA: ~{secondaryHospital.reach_time_minutes} mins · {secondaryHospital.distance_km} km</p>
+                        <div className="pt-1 flex items-center gap-2">
+                          <a
+                            href={secondaryHospital.google_maps_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[11px] transition-colors"
+                          >
+                            Route Maps ↗
+                          </a>
+                          <a
+                            href={`tel:${secondaryHospital.phone.replace(/[^0-9+]/g, '')}`}
+                            className="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 font-bold text-[11px] transition-colors"
+                          >
+                            Call Casualty
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Live Checklist */}
                 <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 space-y-2">
                   <p className="text-xs font-bold flex items-center gap-2">
@@ -248,7 +349,7 @@ export default function EmergencyAccidentModal({
                     <span>Real-Time Actions Initiated by Hospital Casualty Department:</span>
                   </p>
                   <ul className="text-xs space-y-1 text-emerald-800 list-disc list-inside pl-2">
-                    <li>Emergency resuscitation bay and crash cart reserved for incoming accident victim.</li>
+                    <li>Emergency resuscitation bay and crash cart reserved for {patientCount} incoming accident victim(s).</li>
                     <li>Blood bank notified for rapid universal O- / O+ matching standby.</li>
                     <li>Casualty triage team and trauma surgeon assigned to Token {emergencyToken}.</li>
                   </ul>
@@ -286,9 +387,56 @@ export default function EmergencyAccidentModal({
               </div>
             </div>
           ) : (
-            <div className="p-4 sm:p-6">
+            <div className="p-4 sm:p-6 space-y-5">
+              {/* Patient Count Selector with Simultaneous Allocation Notice */}
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-red-50 via-slate-50 to-orange-50/50 border-2 border-red-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping" />
+                    <h3 className="text-sm font-black text-slate-900 flex items-center gap-1.5">
+                      <Users className="w-4 h-4 text-red-600" />
+                      {t('emergency.num_patients')}:
+                    </h3>
+                    <span className="px-2.5 py-0.5 rounded-full bg-red-600 text-white font-black text-xs">
+                      {patientCount} {patientCount === 1 ? 'Victim' : 'Victims'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600 mt-1">
+                    {t('emergency.num_patients_hint')}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-1.5 self-start md:self-auto bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+                  {[1, 2, 3, 4, 5, 8].map((num) => (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => setPatientCount(num)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all ${
+                        patientCount === num
+                          ? 'bg-red-600 text-white shadow-md'
+                          : 'text-slate-700 hover:bg-slate-100'
+                      }`}
+                    >
+                      {num}
+                    </button>
+                  ))}
+                  <div className="flex items-center pl-1 border-l border-slate-200">
+                    <input
+                      type="number"
+                      min="1"
+                      max="30"
+                      value={patientCount}
+                      onChange={(e) => setPatientCount(Math.max(1, parseInt(e.target.value) || 1))}
+                      className="w-12 text-center text-xs font-black text-red-600 bg-slate-50 py-1 rounded-md focus:outline-none"
+                      title="Custom Patient Count"
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* 3 Main Workflow Options as requested */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {/* Option 1: Direct Ambulance Call */}
                 <button
                   type="button"
@@ -424,6 +572,45 @@ export default function EmergencyAccidentModal({
               {/* TAB 1: Ambulance Service Fleet */}
               {activeTab === 'ambulance' && (
                 <div className="space-y-4">
+                  {/* Nagpur Dedicated Ambulance Hotline Banner */}
+                  {selectedCity === 'Nagpur' && (
+                    <div className="p-4 rounded-2xl bg-red-50 border-2 border-red-300 text-red-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md animate-fade-in">
+                      <div className="flex items-center gap-3">
+                        <div className="w-11 h-11 rounded-xl bg-red-600 text-white flex items-center justify-center flex-shrink-0 animate-beep-pulse shadow-sm">
+                          <Phone className="w-5 h-5 animate-pulse" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="px-2 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-black uppercase">
+                              Nagpur Priority Fleet
+                            </span>
+                            <span className="text-xs text-red-700 font-bold">• 24/7 Roadside Response</span>
+                          </div>
+                          <p className="text-xs sm:text-sm font-bold text-slate-800 mt-0.5">
+                            Call official Nagpur emergency drivers directly:
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <a
+                          href="tel:9067375860"
+                          className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-md shadow-red-600/30 transition-all transform active:scale-95"
+                        >
+                          <Phone className="w-3.5 h-3.5" />
+                          <span>Call 9067375860</span>
+                        </a>
+                        <a
+                          href="tel:8530779934"
+                          className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-black text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-md transition-all transform active:scale-95"
+                        >
+                          <Phone className="w-3.5 h-3.5" />
+                          <span>Call 8530779934</span>
+                        </a>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-base font-black text-slate-900">
@@ -498,14 +685,14 @@ export default function EmergencyAccidentModal({
                           </div>
                         </div>
 
-                        <button
-                          type="button"
+                        <a
+                          href={`tel:${amb.phone.replace(/[^0-9+]/g, '')}`}
                           onClick={() => handleAmbulanceCall(amb)}
                           className="w-full py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-red-600/20 transition-all transform active:scale-95"
                         >
                           <Phone className="w-4 h-4 animate-bounce" />
                           <span>{t('emergency.call_now')}: {amb.phone}</span>
-                        </button>
+                        </a>
                       </div>
                     ))}
                   </div>
@@ -647,14 +834,23 @@ export default function EmergencyAccidentModal({
                               Call: {hosp.emergency_helpline.split('/')[0]}
                             </a>
 
-                            <button
-                              type="button"
-                              onClick={() => handleHospitalTrigger(hosp)}
-                              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 shadow-md shadow-red-600/25 transition-all transform active:scale-95"
-                            >
-                              <Siren className="w-4 h-4 animate-pulse" />
-                              <span>{t('emergency.trigger_hospital')}</span>
-                            </button>
+                            <div className="flex flex-col items-end gap-1">
+                              {patientCount > hosp.beds.trauma_available && (
+                                <span className="text-[10px] text-amber-800 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                                  ⚡ {hosp.beds.trauma_available} here, {patientCount - hosp.beds.trauma_available} auto-routed
+                                </span>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => handleHospitalTrigger(hosp)}
+                                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 shadow-md shadow-red-600/25 transition-all transform active:scale-95"
+                              >
+                                <Siren className="w-4 h-4 animate-pulse" />
+                                <span>
+                                  {t('emergency.trigger_hospital')} ({patientCount} {patientCount === 1 ? 'Victim' : 'Victims'})
+                                </span>
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>

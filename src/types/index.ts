@@ -170,3 +170,20 @@ export interface ScoredDonor extends Donor {
   distance: number;
   rank: number;
 }
+
+export interface EmergencyIncident {
+  id: string;
+  token: string;
+  city: 'Mumbai' | 'Pune' | 'Nagpur';
+  primary_hospital_id: string;
+  primary_hospital_name: string;
+  secondary_hospital_id?: string;
+  secondary_hospital_name?: string;
+  patients_total: number;
+  patients_primary: number;
+  patients_secondary: number;
+  reach_time_minutes: number;
+  timestamp: string;
+  status: 'Prepped & Awaiting Patient' | 'Acknowledged' | 'Received' | 'Dispatched';
+  caller_note?: string;
+}

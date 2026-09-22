@@ -1,4 +1,4 @@
-﻿import {
+import {
   collection,
   doc,
   getDocs,
@@ -15,7 +15,7 @@
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { mockDonors, mockHospitals } from './mockData';
-import type { Donor, Hospital, Request, Allocation, Donation, Notification, Transfer, Profile } from '@/types';
+import type { Donor, Hospital, Request, Allocation, Donation, Notification, Transfer, Profile, EmergencyIncident } from '@/types';
 
 // In-memory fallback storage so the application runs immediately without errors even when offline or before initial seed
 let memoryDonors: Donor[] = [...mockDonors];
@@ -232,7 +232,30 @@ export async function updateDonor(donorId: string, updates: Partial<Donor>): Pro
 /* ----------------------------------------------------
    HOSPITALS
 ---------------------------------------------------- */
+export function saveCustomHospital(hosp: Hospital): void {
+  try {
+    const existing = JSON.parse(localStorage.getItem('aarogyam_custom_hospitals') || '[]');
+    const idx = existing.findIndex((h: Hospital) => h.id === hosp.id || h.email === hosp.email);
+    if (idx >= 0) existing[idx] = hosp;
+    else existing.push(hosp);
+    localStorage.setItem('aarogyam_custom_hospitals', JSON.stringify(existing));
+    const memIdx = memoryHospitals.findIndex(m => m.id === hosp.id || m.email === hosp.email);
+    if (memIdx >= 0) memoryHospitals[memIdx] = hosp;
+    else memoryHospitals.push(hosp);
+  } catch (err) {
+    console.warn('saveCustomHospital error:', err);
+  }
+}
+
 export async function getHospitals(): Promise<Hospital[]> {
+  const customHospitals: Hospital[] = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('aarogyam_custom_hospitals') || '[]');
+    } catch {
+      return [];
+    }
+  })();
+
   try {
     const snap = await getDocs(collection(db, 'hospitals'));
     if (!snap.empty) {
@@ -242,12 +265,25 @@ export async function getHospitals(): Promise<Hospital[]> {
         if (idx >= 0) memoryHospitals[idx] = h;
         else memoryHospitals.push(h);
       });
+      // Also merge custom hospitals
+      customHospitals.forEach(ch => {
+        if (!docs.some(d => d.id === ch.id || d.email === ch.email)) {
+          docs.push(ch);
+        }
+      });
       return docs;
     }
   } catch (err) {
     console.warn('Firestore getHospitals fallback:', err);
   }
-  return [...memoryHospitals];
+
+  const combined = [...memoryHospitals];
+  customHospitals.forEach(ch => {
+    if (!combined.some(m => m.id === ch.id || m.email === ch.email)) {
+      combined.push(ch);
+    }
+  });
+  return combined;
 }
 
 export async function getHospitalById(hospitalId: string): Promise<Hospital | null> {
@@ -504,3 +540,55 @@ export async function createTransfer(transferData: Omit<Transfer, 'id' | 'create
   memoryTransfers.unshift(newTrans);
   return newTrans;
 }
+
+/* ----------------------------------------------------
+   EMERGENCY INCIDENTS & CASUALTY ALERTS
+---------------------------------------------------- */
+export async function createEmergencyIncident(incident: EmergencyIncident): Promise<EmergencyIncident> {
+  try {
+    const existing: EmergencyIncident[] = JSON.parse(localStorage.getItem('aarogyam_emergency_incidents') || '[]');
+    existing.unshift(incident);
+    localStorage.setItem('aarogyam_emergency_incidents', JSON.stringify(existing));
+
+    // Broadcast across windows/tabs
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('aarogyam_emergency_alert', { detail: incident }));
+    }
+  } catch (err) {
+    console.warn('createEmergencyIncident error:', err);
+  }
+  return incident;
+}
+
+export function getEmergencyIncidents(hospitalId?: string, hospitalName?: string): EmergencyIncident[] {
+  try {
+    const list: EmergencyIncident[] = JSON.parse(localStorage.getItem('aarogyam_emergency_incidents') || '[]');
+    if (!hospitalId && !hospitalName) return list;
+    return list.filter((inc) => {
+      const matchPrimary = (hospitalId && inc.primary_hospital_id === hospitalId) ||
+        (hospitalName && inc.primary_hospital_name.toLowerCase().includes(hospitalName.toLowerCase()));
+      const matchSecondary = (hospitalId && inc.secondary_hospital_id === hospitalId) ||
+        (hospitalName && inc.secondary_hospital_name && inc.secondary_hospital_name.toLowerCase().includes(hospitalName.toLowerCase()));
+      return matchPrimary || matchSecondary;
+    });
+  } catch {
+    return [];
+  }
+}
+
+export function updateEmergencyIncidentStatus(incidentId: string, status: EmergencyIncident['status']): void {
+  try {
+    const list: EmergencyIncident[] = JSON.parse(localStorage.getItem('aarogyam_emergency_incidents') || '[]');
+    const idx = list.findIndex((i) => i.id === incidentId || i.token === incidentId);
+    if (idx >= 0) {
+      list[idx].status = status;
+      localStorage.setItem('aarogyam_emergency_incidents', JSON.stringify(list));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('aarogyam_emergency_updated', { detail: list[idx] }));
+      }
+    }
+  } catch (err) {
+    console.warn('updateEmergencyIncidentStatus error:', err);
+  }
+}
+

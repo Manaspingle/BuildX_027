@@ -1,9 +1,10 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { useLanguage, type Language } from '@/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { useTheme } from '@/context/ThemeContext';
 import {
   Heart, Menu, X, LogOut, LayoutDashboard, Siren, ShieldCheck,
-  Sparkles, BarChart3, MapPin, Users, Globe
+  Sparkles, BarChart3, MapPin, Users, Sun, Moon
 } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,7 +12,8 @@ import EmergencyAccidentModal from './EmergencyAccidentModal';
 
 export default function Navbar() {
   const { session, profile, donor, hospital, signOut } = useAuth();
-  const { language, setLanguage, t } = useLanguage();
+  const { t } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
@@ -33,7 +35,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 shadow-sm transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             {/* Left Corner: Uploaded Logo & Brand Name */}
@@ -171,33 +173,33 @@ export default function Navbar() {
                 <span className="w-2 h-2 rounded-full bg-white animate-ping" />
               </button>
 
-              {/* Language Switcher Dropdown */}
-              <div className="relative flex items-center bg-slate-100 rounded-xl px-2 py-1.5 border border-slate-200">
-                <Globe className="w-4 h-4 text-brand-teal mr-1.5" />
-                <select
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value as Language)}
-                  className="bg-transparent text-xs font-bold text-slate-800 focus:outline-none cursor-pointer pr-1"
-                  aria-label={t('common.language')}
-                >
-                  <option value="en">English</option>
-                  <option value="hi">हिन्दी</option>
-                  <option value="mr">मराठी</option>
-                </select>
-              </div>
+              {/* Theme Toggle (Dark / Light Mode) */}
+              <button
+                type="button"
+                onClick={toggleTheme}
+                title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-amber-400 border border-slate-200 dark:border-slate-700 transition-all shadow-sm flex items-center justify-center"
+                aria-label="Toggle Theme"
+              >
+                {theme === 'dark' ? (
+                  <Sun className="w-4 h-4 text-amber-400 transition-transform hover:rotate-90" />
+                ) : (
+                  <Moon className="w-4 h-4 text-slate-700 transition-transform hover:-rotate-12" />
+                )}
+              </button>
 
               {!session ? (
                 <>
                   <Link
                     to="/auth?mode=signup&role=individual"
-                    className="px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm text-slate-700 hover:text-brand-teal hover:bg-teal-50 transition-colors"
+                    className="px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm text-slate-700 dark:text-slate-200 hover:text-brand-teal hover:bg-teal-50 dark:hover:bg-slate-800 transition-colors"
                   >
                     {t('nav.register_donor')}
                   </Link>
 
                   <Link
                     to="/auth?mode=signup&role=hospital"
-                    className="px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm text-slate-700 hover:text-brand-teal hover:bg-teal-50 transition-colors"
+                    className="px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm text-slate-700 dark:text-slate-200 hover:text-brand-teal hover:bg-teal-50 dark:hover:bg-slate-800 transition-colors"
                   >
                     {t('nav.hospital_access')}
                   </Link>
@@ -225,13 +227,13 @@ export default function Navbar() {
                   {/* Profile Pill */}
                   <Link
                     to={getDashboardLink()}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-brand-teal/40 transition-colors"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-brand-teal/40 transition-colors"
                   >
                     <div className="w-7 h-7 rounded-lg bg-brand-teal flex items-center justify-center text-white text-xs font-bold">
                       {donor ? donor.full_name[0] : hospital ? hospital.hospital_name[0] : 'U'}
                     </div>
                     <div className="text-left hidden xl:block">
-                      <p className="text-xs font-bold text-slate-800 leading-tight">
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-tight">
                         {donor ? donor.full_name.split(' ')[0] : hospital ? hospital.hospital_name.split(' ')[0] : 'User'}
                       </p>
                       <p className="text-[10px] text-brand-teal font-semibold capitalize">
@@ -244,7 +246,7 @@ export default function Navbar() {
                   <button
                     onClick={handleLogout}
                     title={t('nav.sign_out')}
-                    className="p-2.5 rounded-xl text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                    className="p-2.5 rounded-xl text-slate-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
                   </button>
@@ -264,18 +266,16 @@ export default function Navbar() {
                 <span className="hidden xs:inline">SOS</span>
               </button>
 
-              <div className="relative flex items-center bg-slate-100 rounded-lg px-1.5 py-1">
-                <select
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value as Language)}
-                  className="bg-transparent text-[11px] font-bold text-slate-800 focus:outline-none"
-                  aria-label={t('common.language')}
-                >
-                  <option value="en">EN</option>
-                  <option value="hi">HI</option>
-                  <option value="mr">MR</option>
-                </select>
-              </div>
+              {/* Mobile Theme Toggle */}
+              <button
+                type="button"
+                onClick={toggleTheme}
+                title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-amber-400 border border-slate-200 dark:border-slate-700 transition-colors"
+                aria-label="Toggle Theme"
+              >
+                {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
+              </button>
 
               <button
                 onClick={() => setIsOpen(!isOpen)}
@@ -294,7 +294,7 @@ export default function Navbar() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="md:hidden border-t border-slate-200 bg-white py-4 space-y-3"
+                className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 space-y-3"
               >
                 {!session ? (
                   <div className="space-y-2">
@@ -312,14 +312,14 @@ export default function Navbar() {
                     <Link
                       to="/auth?mode=signup&role=individual"
                       onClick={() => setIsOpen(false)}
-                      className="block w-full py-3 px-4 rounded-xl font-bold text-sm text-slate-800 hover:bg-slate-50 text-center border border-slate-200"
+                      className="block w-full py-3 px-4 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-center border border-slate-200 dark:border-slate-700"
                     >
                       {t('nav.register_donor')}
                     </Link>
                     <Link
                       to="/auth?mode=signup&role=hospital"
                       onClick={() => setIsOpen(false)}
-                      className="block w-full py-3 px-4 rounded-xl font-bold text-sm text-slate-800 hover:bg-slate-50 text-center border border-slate-200"
+                      className="block w-full py-3 px-4 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-center border border-slate-200 dark:border-slate-700"
                     >
                       {t('nav.hospital_access')}
                     </Link>

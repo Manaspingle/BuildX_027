@@ -2,14 +2,16 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Heart, Building2, Mail, Lock, User, Phone, MapPin, BadgeCheck,
-  ChevronRight, AlertCircle, Check
+  Building2, Mail, Lock, User, Phone, MapPin, BadgeCheck,
+  ChevronRight, AlertCircle, Check, Globe
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage, type Language } from '@/context/LanguageContext';
 import { BLOOD_GROUPS, ORGAN_TYPES, CITIES, CITY_COORDS } from '@/lib/constants';
 
 export default function AuthPage() {
   const { signIn, signUp } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -27,7 +29,7 @@ export default function AuthPage() {
   const [fullName, setFullName] = useState('');
   const [age, setAge] = useState('28');
   const [bloodGroup, setBloodGroup] = useState('O+');
-  const [city, setCity] = useState('Mumbai');
+  const [city, setCity] = useState<'Mumbai' | 'Pune' | 'Nagpur'>('Mumbai');
   const [phone, setPhone] = useState('9876543210');
   const [organs, setOrgans] = useState<string[]>(['Kidney', 'Liver', 'Cornea']);
   const [emergencyContact, setEmergencyContact] = useState('9876543211');
@@ -127,31 +129,50 @@ export default function AuthPage() {
     setLoading(false);
   }
 
-  const inputClass = 'w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-400 transition-all text-sm font-medium';
+  const inputClass = 'w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-teal/40 focus:border-brand-teal transition-all text-sm font-medium';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-red-50/30 flex items-center justify-center p-4 sm:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-orange-50/20 flex items-center justify-center p-4 sm:p-6">
       <motion.div
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-2xl"
       >
         <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-primary-600 via-primary-700 to-primary-800 px-8 py-7 text-white">
-            <Link to="/" className="inline-flex items-center gap-2.5 text-white mb-3 hover:opacity-90 transition-opacity">
-              <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
-                <Heart className="w-4 h-4 text-white" fill="white" />
+          {/* Header with Uploaded Brand Logo and #00605F */}
+          <div className="bg-gradient-to-r from-brand-teal via-[#005453] to-[#003837] px-8 py-7 text-white relative">
+            <div className="flex items-center justify-between">
+              <Link to="/" className="inline-flex items-center gap-3 text-white mb-3 hover:opacity-95 transition-opacity">
+                <img
+                  src="/aarogyam-logo.jpg"
+                  alt="Aarogyam Logo"
+                  className="w-10 h-10 object-cover rounded-xl border-2 border-brand-orange shadow-md"
+                />
+                <span className="text-2xl font-black">{t('app.name')}</span>
+              </Link>
+
+              {/* Language Switcher */}
+              <div className="flex items-center gap-1.5 bg-white/15 px-3 py-1 rounded-xl text-xs font-bold mb-3">
+                <Globe className="w-3.5 h-3.5 text-brand-orange" />
+                <select
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value as Language)}
+                  className="bg-transparent text-white font-bold focus:outline-none cursor-pointer"
+                >
+                  <option value="en" className="text-slate-800">EN</option>
+                  <option value="hi" className="text-slate-800">हिन्दी</option>
+                  <option value="mr" className="text-slate-800">मराठी</option>
+                </select>
               </div>
-              <span className="text-xl font-black">Aarogyam</span>
-            </Link>
+            </div>
+
             <h1 className="text-2xl sm:text-3xl font-black">
-              {mode === 'login' ? 'Welcome Back' : 'Join the Aarogyam Network'}
+              {mode === 'login' ? t('auth.welcome_back') : t('auth.join_aarogyam')}
             </h1>
-            <p className="text-primary-100 text-xs sm:text-sm mt-1">
+            <p className="text-teal-100 text-xs sm:text-sm mt-1">
               {mode === 'login'
-                ? 'Sign in to your donor or hospital account to continue'
-                : 'Connect with local hospitals, donors, and recipients in emergencies'}
+                ? 'Sign in to access your dashboard across Mumbai, Pune, and Nagpur'
+                : 'Connect with local hospitals, donors, and trauma centers in Maharashtra'}
             </p>
           </div>
 
@@ -162,19 +183,19 @@ export default function AuthPage() {
                 type="button"
                 onClick={() => setMode('login')}
                 className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all ${
-                  mode === 'login' ? 'bg-white text-primary-700 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+                  mode === 'login' ? 'bg-white text-brand-teal shadow-sm' : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
-                Sign In
+                {t('auth.sign_in')}
               </button>
               <button
                 type="button"
                 onClick={() => setMode('signup')}
                 className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all ${
-                  mode === 'signup' ? 'bg-white text-primary-700 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+                  mode === 'signup' ? 'bg-white text-brand-teal shadow-sm' : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
-                Register
+                {t('auth.register')}
               </button>
             </div>
 
@@ -185,24 +206,24 @@ export default function AuthPage() {
                 onClick={() => setRole('individual')}
                 className={`flex-1 flex items-center justify-center gap-2.5 py-3 rounded-2xl border-2 transition-all font-bold text-sm ${
                   role === 'individual'
-                    ? 'border-primary-600 bg-primary-50/70 text-primary-700 shadow-sm'
+                    ? 'border-brand-teal bg-teal-50/70 text-brand-teal shadow-sm'
                     : 'border-slate-200 text-slate-600 hover:border-slate-300'
                 }`}
               >
                 <User className="w-4 h-4" />
-                Individual / Donor
+                {t('auth.role_individual')}
               </button>
               <button
                 type="button"
                 onClick={() => setRole('hospital')}
                 className={`flex-1 flex items-center justify-center gap-2.5 py-3 rounded-2xl border-2 transition-all font-bold text-sm ${
                   role === 'hospital'
-                    ? 'border-primary-600 bg-primary-50/70 text-primary-700 shadow-sm'
+                    ? 'border-brand-teal bg-teal-50/70 text-brand-teal shadow-sm'
                     : 'border-slate-200 text-slate-600 hover:border-slate-300'
                 }`}
               >
                 <Building2 className="w-4 h-4" />
-                Hospital Center
+                {t('auth.role_hospital')}
               </button>
             </div>
 
@@ -221,7 +242,7 @@ export default function AuthPage() {
                       <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                       <input
                         type="text"
-                        placeholder="Full Name"
+                        placeholder={t('auth.full_name')}
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                         required
@@ -231,23 +252,22 @@ export default function AuthPage() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="relative">
-                        <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                         <input
                           type="number"
-                          placeholder="Age"
+                          placeholder="Age (18-65)"
                           value={age}
                           onChange={(e) => setAge(e.target.value)}
                           required
                           min="18"
-                          max="80"
-                          className={inputClass}
+                          max="70"
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 placeholder-slate-400 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-teal/40"
                         />
                       </div>
                       <select
                         value={bloodGroup}
                         onChange={(e) => setBloodGroup(e.target.value)}
                         required
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-teal/40"
                       >
                         {BLOOD_GROUPS.map((bg) => (
                           <option key={bg} value={bg}>Blood Group: {bg}</option>
@@ -255,22 +275,23 @@ export default function AuthPage() {
                       </select>
                     </div>
 
+                    {/* Restricted Cities: Mumbai, Pune, Nagpur only */}
                     <div className="grid grid-cols-2 gap-4">
                       <select
                         value={city}
-                        onChange={(e) => setCity(e.target.value)}
+                        onChange={(e) => setCity(e.target.value as 'Mumbai' | 'Pune' | 'Nagpur')}
                         required
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-brand-orange/40 bg-orange-50/30 text-slate-800 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-brand-teal/40"
                       >
                         {CITIES.map((c) => (
-                          <option key={c} value={c}>City: {c}</option>
+                          <option key={c} value={c}>City: {c} (Maharashtra)</option>
                         ))}
                       </select>
                       <div className="relative">
                         <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                         <input
                           type="tel"
-                          placeholder="Phone"
+                          placeholder={t('auth.phone')}
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
                           required
@@ -284,22 +305,21 @@ export default function AuthPage() {
                       <label className="block text-xs font-bold text-slate-700 mb-2">
                         Organs Willing to Donate (Posthumous Pledge)
                       </label>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="grid grid-cols-3 gap-2">
                         {ORGAN_TYPES.map((organ) => {
-                          const active = organs.includes(organ);
+                          const isSelected = organs.includes(organ);
                           return (
                             <button
                               key={organ}
                               type="button"
                               onClick={() => toggleOrgan(organ)}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                                active
-                                  ? 'bg-primary-600 text-white shadow-sm'
-                                  : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
+                              className={`p-2 rounded-xl text-xs font-bold transition-all border ${
+                                isSelected
+                                  ? 'bg-brand-orange text-white border-brand-orange shadow-sm'
+                                  : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
                               }`}
                             >
-                              {active && <Check className="w-3.5 h-3.5" />}
-                              {organ}
+                              {isSelected ? '✓ ' : '+ '}{organ}
                             </button>
                           );
                         })}
@@ -309,23 +329,24 @@ export default function AuthPage() {
                     <div className="relative">
                       <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                       <input
-                        type="text"
+                        type="tel"
                         placeholder="Emergency Contact Phone"
                         value={emergencyContact}
                         onChange={(e) => setEmergencyContact(e.target.value)}
+                        required
                         className={inputClass}
                       />
                     </div>
 
-                    <label className="flex items-start gap-3 p-3 bg-primary-50/50 rounded-2xl border border-primary-100 cursor-pointer">
+                    <label className="flex items-start gap-2.5 p-3 rounded-xl bg-orange-50/50 border border-brand-orange/20 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={consent}
                         onChange={(e) => setConsent(e.target.checked)}
-                        className="mt-0.5 w-4 h-4 rounded text-primary-600 focus:ring-primary-500"
+                        className="mt-1 w-4 h-4 rounded text-brand-teal focus:ring-brand-teal"
                       />
-                      <span className="text-xs text-slate-700 leading-relaxed font-medium">
-                        I hereby pledge to donate my chosen organs posthumously for transplantation. I understand this helps save lives after brain/cardiac death.
+                      <span className="text-xs text-slate-700 leading-snug">
+                        I hereby pledge to donate my chosen organs posthumously and agree to emergency blood dispatch alerts.
                       </span>
                     </label>
                   </motion.div>
@@ -343,7 +364,7 @@ export default function AuthPage() {
                       <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                       <input
                         type="text"
-                        placeholder="Hospital Name (e.g. Fortis Healthcare)"
+                        placeholder={t('auth.hospital_name')}
                         value={hospitalName}
                         onChange={(e) => setHospitalName(e.target.value)}
                         required
@@ -351,12 +372,13 @@ export default function AuthPage() {
                       />
                     </div>
 
+                    {/* Restricted Cities: Mumbai, Pune, Nagpur only */}
                     <div className="grid grid-cols-2 gap-4">
                       <div className="relative">
                         <BadgeCheck className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                         <input
                           type="text"
-                          placeholder="Registration ID"
+                          placeholder={t('auth.registration_id')}
                           value={registrationId}
                           onChange={(e) => setRegistrationId(e.target.value)}
                           required
@@ -365,12 +387,12 @@ export default function AuthPage() {
                       </div>
                       <select
                         value={city}
-                        onChange={(e) => setCity(e.target.value)}
+                        onChange={(e) => setCity(e.target.value as 'Mumbai' | 'Pune' | 'Nagpur')}
                         required
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-brand-orange/40 bg-orange-50/30 text-slate-800 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-brand-teal/40"
                       >
                         {CITIES.map((c) => (
-                          <option key={c} value={c}>City: {c}</option>
+                          <option key={c} value={c}>City: {c} (Maharashtra)</option>
                         ))}
                       </select>
                     </div>
@@ -379,7 +401,7 @@ export default function AuthPage() {
                       <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                       <input
                         type="text"
-                        placeholder="Complete Street Address"
+                        placeholder={t('auth.address')}
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
                         required
@@ -392,7 +414,7 @@ export default function AuthPage() {
                         <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                         <input
                           type="text"
-                          placeholder="Contact Person / Head"
+                          placeholder={t('auth.contact_person')}
                           value={contactPerson}
                           onChange={(e) => setContactPerson(e.target.value)}
                           required
@@ -403,7 +425,7 @@ export default function AuthPage() {
                         <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                         <input
                           type="tel"
-                          placeholder="Emergency Phone"
+                          placeholder="Hospital Phone"
                           value={hospitalPhone}
                           onChange={(e) => setHospitalPhone(e.target.value)}
                           required
@@ -411,28 +433,16 @@ export default function AuthPage() {
                         />
                       </div>
                     </div>
-
-                    <label className="flex items-center gap-3 p-3 bg-teal-50 rounded-2xl border border-teal-200 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={verified}
-                        onChange={(e) => setVerified(e.target.checked)}
-                        className="w-4 h-4 rounded text-teal-600 focus:ring-teal-500"
-                      />
-                      <span className="text-xs text-teal-900 font-bold">
-                        Medical center verification pledge (Clinical license confirmed)
-                      </span>
-                    </label>
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              {/* Common Credentials */}
+              {/* Email & Password (Common to all modes) */}
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <input
                   type="email"
-                  placeholder="Official Email Address"
+                  placeholder={t('auth.email')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -444,7 +454,7 @@ export default function AuthPage() {
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <input
                   type="password"
-                  placeholder="Password (min 6 characters)"
+                  placeholder={t('auth.password')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -453,20 +463,58 @@ export default function AuthPage() {
                 />
               </div>
 
-              {error && (
-                <div className="flex items-center gap-2.5 text-xs font-semibold text-primary-700 bg-primary-50 p-3.5 rounded-2xl border border-primary-200">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                  {error}
+              {/* Quick Demo Credentials Helpers */}
+              {mode === 'login' && (
+                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 text-xs text-slate-600">
+                  <p className="font-bold text-slate-700 mb-1.5">Quick Demo Fill:</p>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmail('kem.mumbai@aarogyam.org');
+                        setPassword('password123');
+                        setRole('hospital');
+                      }}
+                      className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg hover:border-brand-teal text-slate-700 font-semibold transition-colors"
+                    >
+                      KEM Mumbai (Hospital)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmail('donor1@gmail.com');
+                        setPassword('password123');
+                        setRole('individual');
+                      }}
+                      className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg hover:border-brand-teal text-slate-700 font-semibold transition-colors"
+                    >
+                      Rajesh (Donor)
+                    </button>
+                  </div>
                 </div>
               )}
 
+              {error && (
+                <div className="flex items-center gap-2 p-3.5 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-semibold">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              {/* Submit Button in Brand Teal #00605F */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-2xl transition-all shadow-xl shadow-primary-600/25 disabled:opacity-60 text-base"
+                className="w-full flex items-center justify-center gap-2 py-4 bg-brand-teal hover:bg-brand-teal/90 text-white font-black rounded-2xl transition-all shadow-xl shadow-brand-teal/25 disabled:opacity-60 text-base"
               >
-                {loading ? 'Authenticating...' : mode === 'login' ? 'Sign In' : 'Create Account'}
-                <ChevronRight className="w-5 h-5" />
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <span>{mode === 'login' ? t('auth.submit_signin') : t('auth.submit_register')}</span>
+                    <ChevronRight className="w-5 h-5" />
+                  </>
+                )}
               </button>
             </form>
           </div>

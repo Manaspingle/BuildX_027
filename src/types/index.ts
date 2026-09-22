@@ -1,5 +1,65 @@
 export type UserRole = 'individual' | 'hospital';
 
+export interface AuditLog {
+  id: string;
+  action: string;
+  details: string;
+  verification_hash: string;
+  created_at: string;
+}
+
+export interface AmbulanceDriver {
+  id: string;
+  driver_name: string;
+  phone: string;
+  city: 'Mumbai' | 'Pune' | 'Nagpur';
+  vehicle_no: string;
+  capacity_type: 'Large Capacity (ICU / Ventilator)' | 'Small Capacity (Basic Life Support)';
+  equipment: string[];
+  price_inr: number;
+  base_rate_info: string;
+  rating: number;
+  trips_completed: number;
+  reach_time_minutes: number;
+  distance_km: number;
+  available: boolean;
+  lat: number;
+  lng: number;
+}
+
+export interface EmergencyDoctor {
+  name: string;
+  role: string;
+  specialization: string;
+  on_duty: boolean;
+}
+
+export interface EmergencyHospital {
+  id: string;
+  name: string;
+  type: 'Government' | 'Private';
+  city: 'Mumbai' | 'Pune' | 'Nagpur';
+  address: string;
+  phone: string;
+  emergency_helpline: string;
+  reach_time_minutes: number;
+  distance_km: number;
+  lat: number;
+  lng: number;
+  beds: {
+    icu_total: number;
+    icu_available: number;
+    trauma_total: number;
+    trauma_available: number;
+    general_emergency_total: number;
+    general_emergency_available: number;
+  };
+  doctors: EmergencyDoctor[];
+  facilities: string[];
+  cost_tier: 'Free / Subsidized' | 'Standard Private' | 'Premium Super-Specialty';
+  google_maps_url: string;
+}
+
 export interface Profile {
   id: string;
   user_id: string;

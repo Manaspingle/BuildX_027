@@ -171,10 +171,10 @@ export default function AIRecommendations() {
     setInsights([
       {
         title: 'Emergency Blood & Organ Network Active',
-        description: 'Real-time AI matching is currently monitoring multi-hospital requests across Mumbai, Delhi, Bangalore, and Hyderabad.',
+        description: 'Real-time AI matching is currently monitoring multi-hospital requests across Mumbai, Pune, and Nagpur.',
         icon: Sparkles,
-        color: 'text-primary-600',
-        bg: 'bg-primary-50',
+        color: 'text-brand-teal',
+        bg: 'bg-teal-50',
         tag: 'Network Status',
       },
     ]);

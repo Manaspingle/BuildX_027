@@ -15,6 +15,7 @@ import AIRecommendations from '@/pages/AIRecommendations';
 import Reports from '@/pages/Reports';
 import NearbyHospitals from '@/pages/NearbyHospitals';
 import DonorDirectory from '@/pages/DonorDirectory';
+import { ThemeProvider } from '@/context/ThemeContext';
 import type { ReactNode } from 'react';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -55,13 +56,15 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </AuthProvider>
-    </LanguageProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </AuthProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
 
